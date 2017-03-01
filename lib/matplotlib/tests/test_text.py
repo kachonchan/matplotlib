@@ -424,3 +424,10 @@ def test_font_scaling():
 
     for i, fs in enumerate(range(4, 43, 2)):
         ax.text(0.1, i*30, "{fs} pt font size".format(fs=fs), fontsize=fs)
+
+@image_comparison(baseline_images=['multi_instance'],
+                  extensions=['png'])
+def test_multi_instance():
+    # Related to issue #7523
+    plt.text(.5, .5, 'line1\nline2', linespacing = 1)
+    plt.text(.5, .5, 'line1\nline2', linespacing = 4)
