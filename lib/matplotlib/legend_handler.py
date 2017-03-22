@@ -34,7 +34,7 @@ from itertools import cycle
 import numpy as np
 
 from matplotlib.lines import Line2D
-from matplotlib.patches import Rectangle
+from matplotlib.patches import Rectangle, FancyArrowPatch
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 
@@ -255,6 +255,30 @@ class HandlerPatch(HandlerBase):
         p.set_transform(trans)
         return [p]
 
+
+class HandlerFancyArrowPatch(HandlerPatch):
+    """
+    Handler for FancyArrowPatch instances.
+    """
+    def __init__(self, patch_func=None, **kw):
+
+        def patch_func(legend, orig_handle, xdescent, ydescent, width,
+                       height, fontsize):
+            return FancyArrowPatch((xdescent, height/2), (width, height/2),
+                                    arrowstyle=orig_handle.get_arrowstyle(), mutation_scale=width/2)
+
+        HandlerPatch.__init__(self, patch_func, **kw)
+
+
+class HandlerAnnotation(HandlerBase):
+    """
+    Handler for Annotation instances.
+    """
+    def create_artists(self, legend, orig_handle,
+                       xdescent, ydescent, width, height, fontsize, trans):
+        h = HandlerFancyArrowPatch()
+        return h.create_artists(legend, orig_handle.arrow_patch,
+                       xdescent, ydescent, width, height, fontsize, trans)
 
 class HandlerLineCollection(HandlerLine2D):
     """
@@ -661,3 +685,42 @@ class HandlerPolyCollection(HandlerBase):
         self.update_prop(p, orig_handle, legend)
         p.set_transform(trans)
         return [p]
+
+
+def test_annotation():
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import FancyArrowPatch, Rectangle
+    from matplotlib.lines import Line2D
+
+    fig, ax = plt.subplots(1)
+    ax.plot([0, 1], [0, 0], label='line1')
+    ax.plot([0, 1], [1, 1], label='line2')
+
+    ax.annotate("my annotation",
+                xy=(0.6,0.4),
+                xytext=(0.6,0.2),
+                arrowprops={'arrowstyle':'<->', 'color':'C7' },
+                label='annotation1')
+
+    ax.add_patch(FancyArrowPatch((0.5,0.7),
+                                 (0.5,0.3),
+                                 arrowstyle='->',
+                                 mutation_scale=30,
+                                 label='fancy1'))
+
+    ax.add_patch(FancyArrowPatch((0.1,0.3),
+                                 (0.2,0.4),
+                                 arrowstyle='simple',
+                                 mutation_scale=30,
+                                 label='fancy2'))
+
+    l = ax.legend()
+
+    assert(len(l.legendHandles) == 5)
+
+    assert(isinstance(l.legendHandles[2], FancyArrowPatch))
+    assert(isinstance(l.legendHandles[3], FancyArrowPatch))
+
+    if len(l.legendHandles) == 5:
+        assert(isinstance(l.legendHandles[4], FancyArrowPatch))
+        assert(l.texts[4].get_text() == 'annotation1')

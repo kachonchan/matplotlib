@@ -321,3 +321,42 @@ def test_linecollection_scaled_dashes():
     for oh, lh in zip((lc1, lc2, lc3), (h1, h2, h3)):
         assert oh.get_linestyles()[0][1] == lh._dashSeq
         assert oh.get_linestyles()[0][0] == lh._dashOffset
+
+
+def test_annotation():
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import FancyArrowPatch, Rectangle
+    from matplotlib.lines import Line2D
+
+    fig, ax = plt.subplots(1)
+    ax.plot([0, 1], [0, 0], label='line1')
+    ax.plot([0, 1], [1, 1], label='line2')
+
+    ax.annotate("my annotation",
+                xy=(0.6,0.4),
+                xytext=(0.6,0.2),
+                arrowprops={'arrowstyle':'<->', 'color':'C7' },
+                label='annotation1')
+
+    ax.add_patch(FancyArrowPatch((0.5,0.7),
+                                 (0.5,0.3),
+                                 arrowstyle='->',
+                                 mutation_scale=30,
+                                 label='fancy1'))
+
+    ax.add_patch(FancyArrowPatch((0.1,0.3),
+                                 (0.2,0.4),
+                                 arrowstyle='simple',
+                                 mutation_scale=30,
+                                 label='fancy2'))
+
+    l = ax.legend()
+
+    assert(len(l.legendHandles) == 5)
+
+    assert(isinstance(l.legendHandles[2], FancyArrowPatch))
+    assert(isinstance(l.legendHandles[3], FancyArrowPatch))
+
+    if len(l.legendHandles) == 5:
+        assert(isinstance(l.legendHandles[4], FancyArrowPatch))
+        assert(l.texts[4].get_text() == 'annotation1')

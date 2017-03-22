@@ -36,7 +36,7 @@ from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import is_string_like, silent_list, is_hashable
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
-from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
+from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch, FancyArrowPatch
 from matplotlib.collections import (LineCollection, RegularPolyCollection,
                                     CircleCollection, PathCollection,
                                     PolyCollection)
@@ -48,6 +48,7 @@ from matplotlib.offsetbox import DraggableOffsetBox
 
 from matplotlib.container import ErrorbarContainer, BarContainer, StemContainer
 from . import legend_handler
+from matplotlib.text import Annotation
 
 
 class DraggableLegend(DraggableOffsetBox):
@@ -486,6 +487,8 @@ class Legend(Artist):
         ErrorbarContainer: legend_handler.HandlerErrorbar(),
         Line2D: legend_handler.HandlerLine2D(),
         Patch: legend_handler.HandlerPatch(),
+        FancyArrowPatch: legend_handler.HandlerFancyArrowPatch(),
+        Annotation: legend_handler.HandlerAnnotation(),
         LineCollection: legend_handler.HandlerLineCollection(),
         RegularPolyCollection: legend_handler.HandlerRegularPolyCollection(),
         CircleCollection: legend_handler.HandlerCircleCollection(),
